@@ -35,20 +35,22 @@ exports.getSeeksByPlace = async (req, res) => {
   }
 
   try {
+    const regex = new RegExp(place, 'i'); 
     const seeks = await Seek.find({
-      place,
-      seekerId: { $ne: req.userId }, // Exclude seeks created by the requested user
+      place: { $regex: regex },
+      seekerId: { $ne: req.userId }, 
       $or: [
-        { accepted: false }, // Include seeks that are not accepted
+        { accepted: false }, 
         { accepted: true, acceptedBy: req.userId } // Include seeks accepted by the user
       ]
     });
     res.status(200).json(seeks);
   } catch (error) {
-    console.error('Error fetching seeks:', error.message);
+    console.error('Error fetching seeks:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 
 exports.acceptSeek = async (req, res) => {
@@ -88,6 +90,7 @@ exports.acceptSeek = async (req, res) => {
 
     res.status(200).json({ message: 'Seek accepted successfully', seek });
   } catch (error) {
+    console.log("Error accepting seek:", error)
     res.status(500).json({ message: error.message });
   }
 };

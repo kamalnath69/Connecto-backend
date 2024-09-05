@@ -29,11 +29,13 @@ exports.getProvidesByPlace = async (req, res) => {
   if (!place) {
     return res.status(400).json({ message: 'Place query parameter is required' });
   }
+
   try {
+    const regex = new RegExp(place, 'i'); // 'i' makes the search case-insensitive
     const provides = await Provide.find({
-      place,
-      providerId: { $ne: req.userId }, 
-      accepted: false
+      place: { $regex: regex },
+      providerId: { $ne: req.userId }, // Exclude provides created by the requested user
+      accepted: false // Only include provides that are not accepted
     });
     res.status(200).json(provides);
   } catch (error) {
